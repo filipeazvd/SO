@@ -17,7 +17,10 @@ int main(int argc, char* argv[]){
 	char buf[512];
 	char* stringArg[52];
 	stringArg[0] = strtok(argv[3]," ");
+	
+
 	mkfifo("clienteServer",0666);
+
 	int res1;
 	res1 = open("clienteServer", O_WRONLY);
 	//res2 = open("serverCliente", O_RDONLY);
@@ -48,6 +51,7 @@ int main(int argc, char* argv[]){
 				//strcpy(comando,"\n");
 				//write(1,comando,strlen(comando));
 				
+
 				//mandar o comando para o pipe
 				//write(res1, stringArg[0], strlen(stringArg[0]));
 
@@ -90,7 +94,15 @@ int main(int argc, char* argv[]){
 
 		if (strcmp(argv[1],"status")==0){
 
-			write(res1,"status",6);
+			char c[40];
+			sprintf(c,"serverCliente%d",getpid());
+			mkfifo(c,0666);
+
+			char msg2[100];
+			sprintf(msg2,"status %s",c);
+			write(res1,msg2,strlen(msg2));
+
+
 
 		}	else{
 
