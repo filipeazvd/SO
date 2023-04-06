@@ -17,9 +17,6 @@ int main(int argc, char* argv[]){
 	char buf[512];
 	char* stringArg[52];
 	stringArg[0] = strtok(argv[3]," ");
-	
-
-	mkfifo("clienteServer",0666);
 
 	int res1;
 	res1 = open("clienteServer", O_WRONLY);
@@ -98,11 +95,19 @@ int main(int argc, char* argv[]){
 			sprintf(c,"serverCliente%d",getpid());
 			mkfifo(c,0666);
 
+			//mandar para o server
+
 			char msg2[100];
 			sprintf(msg2,"status %s",c);
 			write(res1,msg2,strlen(msg2));
 
-
+			//receber do server inf
+			int n,res2;
+			char buf2[512];
+			res2 = open(c, O_RDONLY);
+			n = read(res2,buf2,sizeof(buf2));
+			buf2[n]='\0';
+			write(1, buf2, strlen(buf2));
 
 		}	else{
 
