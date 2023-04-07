@@ -14,13 +14,15 @@ struct timeval gettime1;
 
 int main(int argc, char* argv[]){
 
-	char buf[512];
+	//char buf[512];
 	char* stringArg[52];
 	stringArg[0] = strtok(argv[3]," ");
 
 	int res1;
-	res1 = open("clienteServer", O_WRONLY);
+	res1 = open("../tmp/clienteServer", O_WRONLY);
 	//res2 = open("serverCliente", O_RDONLY);
+
+
 
 	if(argc >= 4){
 
@@ -80,9 +82,25 @@ int main(int argc, char* argv[]){
 				//mandar para o pipe segundos e microsegundos
 				//write(res1,sec,strlen(sec));
 				//write(res1,microsec,strlen(microsec));
-				printf("%s, %s, %s, %s\n",stringArg[0],pidF,sec,microsec);
+				//printf("%s, %s, %s, %s\n",stringArg[0],pidF,sec,microsec);
 				execvp(stringArg[0],stringArg);
 
+			}else{
+
+				//pai
+
+				//enviar msg com o pid do programa terminado
+				int status;
+				int terminated_pid = wait(&status);
+				char pidd[20];
+				sprintf(pidd,"%d",terminated_pid);
+				char a[50];
+				strcpy(a,"Pid");
+				strcat(a," ");
+				strcat(a,pidd);
+
+				//printf("pid filho terminado: %d\n",terminated_pid);
+				write(res1,a,strlen(a));
 			}
 
 		}
@@ -92,7 +110,8 @@ int main(int argc, char* argv[]){
 		if (strcmp(argv[1],"status")==0){
 
 			char c[40];
-			sprintf(c,"serverCliente%d",getpid());
+			sprintf(c,"../tmp/serverCliente%d",getpid());
+			
 			mkfifo(c,0666);
 
 			//mandar para o server
@@ -107,16 +126,19 @@ int main(int argc, char* argv[]){
 			res2 = open(c, O_RDONLY);
 			n = read(res2,buf2,sizeof(buf2));
 			buf2[n]='\0';
+			printf("ok\n");
 			write(1, buf2, strlen(buf2));
+
 
 		}	else{
 
 			return 1;
 		}
 	}
-
-	wait(NULL);
-
+	
+	
+	//wait(NULL);
+	
 
 	return 0;
 }
