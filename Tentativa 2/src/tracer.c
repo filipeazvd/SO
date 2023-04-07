@@ -14,19 +14,25 @@ struct timeval gettime1;
 
 int main(int argc, char* argv[]){
 
+	//criar histórico
+	
+	int res1;
+	res1 = open("../tmp/clienteServer", O_WRONLY);
+
+
+	if(argc == 4){
+
+
 	//argumentos do comando
 	char* stringArg[52];
 	//stringArg[0] : ls
 	stringArg[0] = strtok(argv[3]," ");
 	
 	//abrir o pipe clienteServer. Guarda os pipes no tmp file
-	int res1;
-	res1 = open("../tmp/clienteServer", O_WRONLY);
 	
 
 	//faltar modificar para ver se nao ha erro nenhum com falta de argumentos
-
-	if(argc >= 4){
+	
 
 		//colocar a string comando em stringArg "ls -l ..."
 		int i = 0;
@@ -38,7 +44,7 @@ int main(int argc, char* argv[]){
 			}
 
 		// se o comando for um execute
-		if(strcmp(argv[1],"execute")==0){
+		if((strcmp(argv[1],"execute") && strcmp(argv[2],"-u"))==0){
 			//cria filho 
 			pid_t pid = fork();
 
@@ -95,9 +101,12 @@ int main(int argc, char* argv[]){
 				write(res1,a,strlen(a));
 			}
 
+		}else {
+
+			write(1,"Erro nos argumentos\n",20);
 		}
 	
-	} else if(argc <=2){
+	} else if(argc ==2){
 		//comando status
 		if (strcmp(argv[1],"status")==0){
 			//criar um pipe para pedir o status ao server, este vai saber que pipe é atraves do pid
@@ -128,12 +137,14 @@ int main(int argc, char* argv[]){
 
 		}	else{
 
-			return 1;
+				write(1,"Erro nos argumentos\n",20);
+			
 		}
+	
+	}else {
+
+		write(1,"Erro nos argumentos\n",20);
 	}
-	
-	
-	
 
 	return 0;
 }
