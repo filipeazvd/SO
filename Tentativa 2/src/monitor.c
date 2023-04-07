@@ -24,34 +24,46 @@ typedef struct infPrograma{
 
 }*infPrograma;
 
-infPrograma takeList(infPrograma queue, int pid){
 
-	printf("%d 1\n",(queue==NULL));
+//funcao para tirar um elemento da lista ligada
+infPrograma takeList(infPrograma queue, int pid){
 
 	//verificar lista se ta vazia
 	if( queue == NULL) return NULL;
+
+	//para iterar e retirar é preciso dois apontadores
 	infPrograma pr1 = queue;
 	infPrograma pr2;
-	//primeiro elem da lista
-	//o primeiro elemento se for o msm pid é libertada e o primeiro elem passa a ser o prox
+	
+	//verificar com o pid que recebe(o pid do programa terminado) verifica se terminou,
+	// se sim o proximo passa a ser o primeiro e o terminado é libertado
 	if( pr1->pid == pid){
 
 		queue = queue->prox;
 		free(pr1);
-		printf("%d 3\n",(queue==NULL));
+		
 		return queue;
+
 	}else { 
-	// iterar o resto
-		printf("%d 2\n",(queue==NULL));
+
+		// caso o primeiro não esteja terminado vai iterar no resto da lista
+		// para percorrer uma lista ligada é preciso o pr1 a apontar para o primeiro elemento
+		// pr2 a apontar para o segundo elemento
+		//vai percorrer a lista ate o pr2 ser NULL (pr2 vai percorrer a lista)
 		for (pr2=pr1->prox; pr2 != NULL; pr2=pr2->prox){
 
+			//verifica o pid
 			if (pr2->pid == pid ){
+				//neste caso tamos a verificar se o segundo elemento ja terminou
+				//se terminou temos que pr1->prox(que é o segundo elemento) passa a ser o seguinte
+				// e liberta-se o pr2 pq ja terminou
 				pr1->prox = pr2->prox;
 				free(pr2);
 				return queue;
 				
 			}else {
-
+				//caso nao tenha terminado passa-se para o proximo caso
+				//o pr1 avança e o pr2 avança no ciclo for
 				pr1=pr1->prox;
 
 			}
@@ -63,23 +75,28 @@ infPrograma takeList(infPrograma queue, int pid){
 
 }
 
+//funcao que vai printar as informacoes da queue e mandar para o cliente
 void printlist(infPrograma queue, char inf[]){
-
+	
+	//criamos uma aux para nao mudarmos a lista em si
 	infPrograma aux = queue;
-
+	//obtemos o tempo atual
 	gettimeofday(&gettime2,NULL);
-	printf("%d\n",(aux==NULL));
+	
+
 	for (; aux != NULL;aux=aux->prox){
 		
+		//calculo para comparar o tempo atual com o tempo inical de execucao recebido do cliente
 		int res3;
 		res3 = (gettime2.tv_sec - aux->seg) * 1000 + ((gettime2.tv_usec - aux->milseg)/1000);
 		
 		
-
+		//colocamos na string para enviar
 		sprintf(inf + strlen(inf), "%d %s %d ms\n",aux->pid,aux->comando,res3);
 
 
-		//printf("%s %d %d %d\n", aux->comando, aux->pid,aux->seg,aux->milseg);
+		
+
 	}
 	
 }
@@ -90,6 +107,8 @@ int main(int argc, char* argv[]){
 
 	char buf[512];
 	int res1;
+
+	//lista vazia criada para colocar structs com o status
 	infPrograma queue = NULL;
 	mkfifo("../tmp/clienteServer",0666);
 
@@ -109,19 +128,16 @@ int main(int argc, char* argv[]){
 		if(strncmp(buf,"execute",7)==0){
 
 			strtok(buf," ");
+			
 
-			//colocar inf na struct
+			//colocar inf numa struct
 			infPrograma s1 = malloc(sizeof(struct infPrograma));
 			s1->comando = strdup(strtok(NULL," "));
-			//printf("%s\n",s1->comando);
-			//s1->comando = strtok(NULL," ");
 			s1->pid = atoi(strtok(NULL, " "));
 			s1->seg = atoi(strtok(NULL, " "));
 			s1->milseg = atoi(strtok(NULL, " "));
 
 			//colocar struct na list ligada
-
-
 			s1->prox = queue;
 			queue = s1;
 
@@ -133,62 +149,37 @@ int main(int argc, char* argv[]){
 			//status
 			int res2;
 			strtok(buf," ");
-
+			//buf tá no token status
+			//vai ler: status ../tmp/serverCliente39213
 			char status[512];
 			//reset a string
 			status[0] = '\0';
-			
-			
-			// recebo ./status serverClientepid
 
-			//printf("%s\n",queue->comando);
+			// vai ler a partir de ../tmp/serverCliente39213
 			char *serverCliente = strtok(NULL," ");
-			//printf("%s\n",queue->comando);
 			
 			printlist(queue, status);
-			/*
-			//adicionado novo
-			//receber o pid de programa terminado e tirar da lista
-			int pidd;
-			char string[50];
-			l = read(res1, pidd, sizeof(int));
-			sprintf(string,"%d",pidd);
 
-			if (strtok(status," ")== string){
-
-			}
-			*/
-
-
-			printf("%s\n",status);
-
-			//printf("%s\n",serverCliente);
+			//abre o pipe serverCliente e escreve o status. Fecha para nao ficar a espera
 			res2 = open(serverCliente, O_WRONLY);
 			write(res2,status,strlen(status));
 			close(res2);
 
-			//comparar tempo : milisegundos
-			
-			//printlist(queue);
-
-
 
 		} else if (strncmp(buf,"Pid", 3)==0){
 
-			// sabe que terminou o prog com o certo pid
+			//recebe do cliente pids do programa terminado
+			//coloca numa variavel e manda para a funcao que retira da lista
 			char* word;
 			word = strtok(buf," ");
 			word = strtok(NULL, " ");
 			int p;
 			p = atoi(word);
-			printf("nandogay\n");
 			//queue nao é um apontador
 			queue = takeList(queue, p);
 
 
-			printf("%d\n",p);
-			//strtok(buf," ");
-			//buf[n]
+		
 		}
 
 	}
