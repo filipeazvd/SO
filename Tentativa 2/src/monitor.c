@@ -64,8 +64,6 @@ infPrograma takeList(infPrograma queue, int pid, char* path ){
 		write(folder, buf,strlen(buf));
 		close(folder);
 
-		
-
 		queue = queue->prox;
 		free(pr1);
 		
@@ -120,10 +118,7 @@ void printlist(infPrograma queue, char inf[]){
 		
 		
 		//colocamos na string para enviar
-		sprintf(inf + strlen(inf), "%d %s %d ms\n",aux->pid,aux->comando,res3);
-
-
-		
+		sprintf(inf + strlen(inf), "%d %s %d ms\n",aux->pid,aux->comando,res3);		
 
 	}
 	
@@ -173,9 +168,6 @@ int main(int argc, char* argv[]){
 				s1->prox = queue;
 				queue = s1;
 
-
-
-
 			}else if (strncmp(buf,"status",6)==0){
 
 			//status
@@ -213,10 +205,6 @@ int main(int argc, char* argv[]){
 			//queue nao é um apontador
 				queue = takeList(queue, p, path);
 
-
-
-
-
 			} else if(strncmp(buf,"stats-time",10)==0){
 				//stats-time argc pids pid1 pid2 etc...	
 				//stats 30033 232030
@@ -238,6 +226,7 @@ int main(int argc, char* argv[]){
 					
 					char *d = strtok(NULL," ");
 					strcat(path2[i],d);
+
 					
 
 					strcat(pids[i],path2[i]);
@@ -312,15 +301,102 @@ int main(int argc, char* argv[]){
 				int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
 				write(res5, mensagem, strlen(mensagem));
 				strcat(mensagem,"\0");
-				//printf("Mensagem : %s\n",mensagem);
-				
-				
 				
 
 
-				//printf("%s\n", s);
-				//printf("%s\n",buf);
+			}else if(strncmp(buf,"stats-command",13)==0){
 
+				//string no buffer: stats-command ls 2 1230 1323
+				strtok(buf," ");
+				//comando
+				char* com =strtok(NULL," ");
+				//printf("posBuf: %s\n",s);
+				char* d =strtok(NULL," ");
+				//qnts pids tem
+				int argc = atoi(d);
+
+
+				
+				char pids[argc][100];
+				//meter os pids recebidos em pid[i]
+				for (int i = 0; i < argc ; i++) {
+					//memset(path2[i], 0, sizeof(path2[i]));
+					memset(pids[i], 0, sizeof(pids[i]));
+
+					
+					char *d = strtok(NULL," ");
+					strcat(pids[i],d);
+					//printf("%s\n",pids[i]);
+				}
+
+				int count = 0;
+				char mensagem[512];
+				mensagem[0]= '\0';
+
+				for (int i = 0; i < argc; i++){
+					//./monitor ../PIDS-folder
+					char pathficheiro[100] = "/home/filipe/Desktop/SO/Trab Pratico/SO/Tentativa 2/PIDS-folder/";
+					
+					strcat(pathficheiro,pids[i]);
+					strcat(pathficheiro,".txt");
+
+					int hist = open(pathficheiro, O_RDONLY, 0666);
+					char msg[50];
+					msg[0]='\0';
+
+					if(hist > 0){
+						int ler;
+						char buf4[1024];
+						char buf5[1024];
+						buf5[0]= '\0';
+						ler = read(hist,buf4,sizeof(buf4));
+						strcpy(buf5,buf4);
+						buf5[ler]='\0';
+						//pid comando tempo ms
+
+						strtok(buf5," ");
+						//comando no tempo
+						char *comando = strtok(NULL, " ");
+						//tenho o comando na msg
+						strcat(msg,comando);
+						//printf("msg")
+						//printf("msg: %s\n",msg);
+						if(strcmp(msg,com)==0){
+							count++;
+						}
+						//printf("%d\n",count);
+
+
+					}else{
+						
+						int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+						char msg2[50];
+						strcpy(msg2,"Programa ");
+						strcat(msg2,pids[i]);
+						strcat(msg2," não existe");
+						strcat(msg2,"\n");
+						write(res5,msg2,strlen(msg2));
+						close(res5);
+					}
+
+
+
+					
+
+
+
+				}
+				//printf("%d\n",count);
+				char contador[10];
+				sprintf(contador, "%d", count);
+				strcat(mensagem, "O comando foi executado ");
+				strcat(mensagem, contador);
+				strcat(mensagem, " vezes");
+				//printf("Resultado: %s\n", mensagem);
+
+				int res10 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+				write(res10, mensagem, strlen(mensagem));
+				strcat(mensagem,"\0");
 
 
 			}

@@ -21,7 +21,7 @@ int main(int argc, char* argv[]){
 
 
 	if(argc == 4 && ((strcmp(argv[1],"execute") && strcmp(argv[2],"-u"))==0)){
-	
+
 
 	//argumentos do comando
 		char* stringArg[52];
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]){
 	}else if(strcmp(argv[1],"stats-time")==0){
 		
 		int argcs1 = argc-2;
-		char argcs2[20];
+		char argcs2[100];
 		sprintf(argcs2, "%d",argcs1);
 		char stringArg[512];
 		strcpy(stringArg,"stats-time ");
@@ -158,9 +158,9 @@ int main(int argc, char* argv[]){
 			}
 		}
 		//stringArg = stats-time pid1 pid2 pid3 etc
-		if(argc == 2){
+		if(argc <= 2){
 			char msg3[50];
-			strcpy(msg3,"Não escreveu pids\n");
+			strcpy(msg3,"Argumentos errados\n");
 			write(1, msg3,strlen(msg3));
 			return -1;
 		}	else {
@@ -177,7 +177,83 @@ int main(int argc, char* argv[]){
 		write(1,msg2,strlen(msg2));
 		
 		
-	
+	}else if(strcmp(argv[1],"stats-command")==0){
+
+		// recebo ./tracer stats-command ls pid pid pid...
+		//argc1 número de pids
+		int argc1 = argc -3;
+		//verificar se o argv[2] é comando
+		char command[100];
+		snprintf(command, sizeof(command), "which %s > /dev/null", argv[2]);
+		//printf("command: %s\n",command);
+		if (system(command) == 0) {
+			//é um comando
+
+			//argc1 número de pids
+			char argcs2[100];
+			sprintf(argcs2, "%d",argc1);
+			char stringArg[512];
+			strcpy(stringArg,"stats-command ");
+			strcat(stringArg, argv[2]);
+			strcat(stringArg," ");
+			strcat(stringArg,argcs2);
+			strcat(stringArg," ");
+
+			//printa: stats-command nomecomando nºpids
+			//printf("%s\n", stringArg);
+
+			for (int i = 3; i < argc; i++){
+
+
+				strcat(stringArg,argv[i]);
+				if(i==argc-1){
+
+					strcat(stringArg, "\0");
+
+				}else{
+
+					strcat(stringArg," ");
+				}
+			}
+			//caso ./tracer stats-command ls 10 13
+			//fico com a string "stats-command ls 2 10 13"
+			//posso mandar para o servidor e ele organiza lá
+			//printf("%s\n",stringArg);
+
+			if(argc <= 3){
+				char msg3[50];
+				strcpy(msg3,"Não escreveu pids\n");
+				write(1, msg3,strlen(msg3));
+				return -1;
+
+			}else{
+
+				write(res1,stringArg,strlen(stringArg));
+			} 
+
+
+			char msg50[1024];
+			//printf("tou aqui: %s\n",msg50);
+			int res7 = open("../tmp/serverCliente",O_RDONLY, 0666);
+			int n= read(res7, msg50, sizeof(msg50));
+			msg50[n]='\0';
+
+			//printf("msg:%s \n",msg50);
+			write(1,msg50,strlen(msg50));
+			write(1,"\n",1);
+
+			
+		} else {
+			write(1,"not a valid command\n", 20);
+			return 1;
+		}	
+
+		
+
+		
+
+
+
 	}else {
 
 		write(1,"Erro nos argumentos\n",20);
