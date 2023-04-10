@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include <string.h>
 
 
 
@@ -142,6 +143,7 @@ int main(int argc, char* argv[]){
 		infPrograma queue = NULL;
 		mkfifo("../tmp/clienteServer",0666);
 
+
 	//so fecha para ler qnd todos os clientes fecham para escrever
 		while((res1 = open("../tmp/clienteServer",O_RDWR))){
 
@@ -205,13 +207,119 @@ int main(int argc, char* argv[]){
 				word = strtok(NULL, " ");
 				int p;
 				p = atoi(word);
-				printf("gasdgdgas\n");
+				//printf("gasdgdgas\n");
 				
 
 			//queue nao é um apontador
 				queue = takeList(queue, p, path);
 
 
+
+
+
+			} else if(strncmp(buf,"stats-time",10)==0){
+				//stats-time argc pids pid1 pid2 etc...	
+				//stats 30033 232030
+				
+				// pipe para enviar informacoes serverCliente do comando status-time
+
+				mkfifo("../tmp/serverCliente",0666);
+				strtok(buf," ");
+				char *s = strtok(NULL," ");
+				int argc = atoi(s);
+				
+				char path2[argc][100];
+				char pids[argc][100];
+
+				for (int i = 0; i < argc ; i++) {
+					memset(path2[i], 0, sizeof(path2[i]));
+					memset(pids[i], 0, sizeof(pids[i]));
+
+					
+					char *d = strtok(NULL," ");
+					strcat(path2[i],d);
+					
+
+					strcat(pids[i],path2[i]);
+					//printf("%s\n",pids[i]);
+				}
+
+    			// concatenate path and pid
+
+				//printf("%s\n",pids[0]); //pathppid1
+				//printf("%s\n",pids[1]); //pathpid2
+	
+				char mensagem[512];
+				mensagem[0]= '\0';
+				
+				for (int i = 0; i < argc; i++){
+					//./monitor ../PIDS-folder
+					char pathficheiro[100] = "/home/filipe/Desktop/SO/Trab Pratico/SO/Tentativa 2/PIDS-folder/";
+					
+					strcat(pathficheiro,pids[i]);
+					
+					strcat(pathficheiro,".txt");
+					//printf("path: %s\n",pathficheiro);
+					
+					
+					
+					int hist = open(pathficheiro, O_RDONLY, 0666);
+					
+					//printf("hist: %d\n", hist);
+					if(hist > 0){
+						int ler;
+						char buf4[1024];
+						//buf4[0]='\0';
+						//vou ler os pids para o buf5
+						char buf5[1024];
+						buf5[0]= '\0';
+						ler = read(hist,buf4,sizeof(buf4));
+						strcpy(buf5,buf4);
+						//printf("buf5 %s\n",buf5);
+						
+						buf5[ler]='\0';
+						//pid comando tempo ms
+						strtok(buf5," ");
+						strtok(NULL, " ");
+						char *tempo = strtok(NULL, " ");
+						char msg[50];
+						strcpy(msg,pids[i]);
+						strcat(msg,": ");	
+						strcat(msg,tempo);
+						strcat(msg," ms");
+
+						strcat(mensagem,msg);
+						strcat(mensagem,"\n");
+						//printf("mensagem: %s",mensagem);
+						strcat(mensagem,"\0");
+
+					}else{
+						
+						int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+						char msg2[50];
+						strcpy(msg2,"Programa ");
+						strcat(msg2,pids[i]);
+						strcat(msg2," não existe");
+						strcat(msg2,"\n");
+						write(res5,msg2,strlen(msg2));
+						close(res5);
+					}
+
+
+					
+				}
+				
+				int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+				write(res5, mensagem, strlen(mensagem));
+				strcat(mensagem,"\0");
+				//printf("Mensagem : %s\n",mensagem);
+				
+				
+				
+
+
+				//printf("%s\n", s);
+				//printf("%s\n",buf);
 
 
 
