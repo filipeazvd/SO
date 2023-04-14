@@ -227,20 +227,15 @@ int main(int argc, char* argv[]){
 					char *d = strtok(NULL," ");
 					strcat(path2[i],d);
 
-					
-
 					strcat(pids[i],path2[i]);
 					//printf("%s\n",pids[i]);
 				}
 
     			// concatenate path and pid
 
-				//printf("%s\n",pids[0]); //pathppid1
-				//printf("%s\n",pids[1]); //pathpid2
-	
-				char mensagem[512];
-				mensagem[0]= '\0';
-				
+				//char mensagem[512];
+				//mensagem[0]= '\0';
+				int soma=0;
 				for (int i = 0; i < argc; i++){
 					//./monitor ../PIDS-folder
 					char pathficheiro[100] = "/home/filipe/Desktop/SO/Trab Pratico/SO/Tentativa 2/PIDS-folder/";
@@ -271,8 +266,13 @@ int main(int argc, char* argv[]){
 						strtok(buf5," ");
 						strtok(NULL, " ");
 						char *tempo = strtok(NULL, " ");
-						char msg[50];
-						strcpy(msg,pids[i]);
+						//printf("tempo: %s\n",tempo);
+						//char msg[50];
+						//strcpy(msg,pids[i]);
+						int m = atoi(tempo);
+						soma += m;
+						//printf("aqui: %d\n", soma);
+						/*
 						strcat(msg,": ");	
 						strcat(msg,tempo);
 						strcat(msg," ms");
@@ -281,27 +281,45 @@ int main(int argc, char* argv[]){
 						strcat(mensagem,"\n");
 						//printf("mensagem: %s",mensagem);
 						strcat(mensagem,"\0");
+						*/
 
 					}else{
 						
-						int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
-						char msg2[50];
-						strcpy(msg2,"Programa ");
-						strcat(msg2,pids[i]);
-						strcat(msg2," não existe");
-						strcat(msg2,"\n");
-						write(res5,msg2,strlen(msg2));
-						close(res5);
 					}
 
 
 					
 				}
-				
-				int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
-				write(res5, mensagem, strlen(mensagem));
-				strcat(mensagem,"\0");
-				
+				if(soma > 0){
+
+					char soma1[50];
+					char somaString[50];
+					somaString[0]='\0';
+					strcat(somaString,"Total execution time is ");
+					sprintf(soma1, "%d ",soma);
+					strcat(somaString, soma1);
+					//strcat(somaString," ");
+					strcat(somaString,"ms");
+					strcat(somaString,"\n");
+
+					int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+					printf("%s\n", somaString);
+					write(res5, somaString, strlen(somaString));
+					strcat(somaString,"\0");
+
+
+
+				}else {
+
+					int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+					char msg2[50];
+					strcpy(msg2,"Nenhum dos pids terminou ou existe");
+					strcat(msg2,"\n");
+					write(res5,msg2,strlen(msg2));
+					close(res5);
+
+
+				}
 
 
 			}else if(strncmp(buf,"stats-command",13)==0){
