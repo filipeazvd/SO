@@ -252,8 +252,52 @@ int main(int argc, char* argv[]){
 
 		
 
+	}else if(strcmp(argv[1],"stats-uniq")==0){
+
+		int argcs1 = argc-2;
+		char argcs2[100];
+		sprintf(argcs2, "%d",argcs1);
+		char stringArg[512];
+		strcpy(stringArg,"stats-uniq ");
+		strcat(stringArg,argcs2);
+		strcat(stringArg," ");
+		
+
+		for (int i = 2; i < argc; i++){
+
+			
+			strcat(stringArg,argv[i]);
+			if(i==argc-1){
+
+				strcat(stringArg, "\0");
+
+			}else{
+
+				strcat(stringArg," ");
+			}
+		}
+		//stringArg = stats-time pid1 pid2 pid3 etc
+		if(argc <= 2){
+			char msg3[50];
+			strcpy(msg3,"Argumentos errados\n");
+			write(1, msg3,strlen(msg3));
+			return -1;
+		}	else {
+			//printf("%s\n",stringArg);
+			write(res1,stringArg,strlen(stringArg));
+		}
 
 
+		//receber
+		
+		char msg2[1024];
+		int res6 = open("../tmp/serverCliente",O_RDONLY, 0666);
+		int n= read(res6, msg2, sizeof(msg2));
+		msg2[n]='\0';
+		//printf("%s\n",msg2);
+		//printf("%s\n", msg2);
+		write(1,msg2,strlen(msg2));
+		
 	}else {
 
 		write(1,"Erro nos argumentos\n",20);

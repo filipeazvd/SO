@@ -399,10 +399,6 @@ int main(int argc, char* argv[]){
 
 
 
-					
-
-
-
 				}
 				//printf("%d\n",count);
 				char contador[10];
@@ -415,6 +411,80 @@ int main(int argc, char* argv[]){
 				int res10 = open("../tmp/serverCliente", O_WRONLY, 0666); 
 				write(res10, mensagem, strlen(mensagem));
 				strcat(mensagem,"\0");
+
+
+			}else if(strncmp(buf,"stats-uniq",10)==0){
+
+				//recebo stats-uniq pid1 pid2 pid3
+
+				mkfifo("../tmp/serverCliente",0666);
+				strtok(buf," ");
+				//s apontar para o nºpids
+				char *s = strtok(NULL," ");
+				int n = atoi(s);
+
+				char pids[n][100];
+				//meter os pids recebidos em pid[i]
+				for (int i = 0; i < n ; i++) {
+					//memset(path2[i], 0, sizeof(path2[i]));
+					memset(pids[i], 0, sizeof(pids[i]));
+
+					
+					char *d = strtok(NULL," ");
+					strcat(pids[i],d);
+					//printf("%s\n",pids[i]);
+				}
+
+				char mensagemFinal[512];
+				mensagemFinal[0]='\0';
+				for (int i = 0; i < argc; i++){
+					//./monitor ../PIDS-folder
+					char pathficheiro[100] = "/home/filipe/Desktop/SO/Trab Pratico/SO/Tentativa 2/PIDS-folder/";
+					
+					strcat(pathficheiro,pids[i]);
+					strcat(pathficheiro,".txt");
+
+					int hist = open(pathficheiro, O_RDONLY, 0666);
+					char msg[50];
+					msg[0]='\0';
+
+					if(hist > 0){
+						int ler;
+						char buf4[1024];
+						char buf5[1024];
+						buf5[0]= '\0';
+						ler = read(hist,buf4,sizeof(buf4));
+						strcpy(buf5,buf4);
+						buf5[ler]='\0';
+						//pid comando tempo ms
+						//printf("estou aqui\n");
+						strtok(buf5," ");
+						//comando no tempo
+						char *comando = strtok(NULL, " ");
+						//tenho o comando na msg
+						strcat(msg,comando);
+						//printf("msg")
+						//printf("msg: %s\n",msg);
+						if(strstr(mensagemFinal,msg)==NULL){
+							strcat(mensagemFinal,msg);
+							strcat(mensagemFinal,"\n");	
+							//printf("%s\n",mensagemFinal);
+						}
+					}
+				}
+				
+				if(strlen(mensagemFinal)==0){
+
+					//printf("Nenhum dos pids estava correto\n");
+					int res11 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+					write(res11, "Nenhum Pid estava correto\n",26);
+				}
+
+				int res10 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+				write(res10, mensagemFinal, strlen(mensagemFinal));
+				strcat(mensagemFinal,"\0");
+
+
 
 
 			}
