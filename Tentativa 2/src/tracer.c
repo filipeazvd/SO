@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 
 struct timeval gettime1;
+struct timeval gettime2;
 
 int main(int argc, char* argv[]){
 
@@ -81,7 +82,9 @@ int main(int argc, char* argv[]){
 			strcat(msg,microsec);
 
 			write(res1, msg, strlen(msg));
-
+			write(1,"Running PID ",12);
+			write(1,pidF,strlen(pidF));
+			write(1,"\n",1);
 				//executar o comando no cliente
 			execvp(stringArg[0],stringArg);
 
@@ -99,6 +102,26 @@ int main(int argc, char* argv[]){
 			strcat(a,pidd);
 
 			write(res1,a,strlen(a));
+
+			//talvez tenha que esperar
+			
+
+			char d[100];
+			char buffer[50];
+			sprintf(d,"../tmp/pidServerCliente%s",pidd);
+			int res7 = open(d, O_RDONLY, 0666);
+			int res8 = read(res7,buffer,50);
+			buffer[res8]='\0';
+			//printf("%s\n",buffer);
+
+
+			write(1,"\n",1);
+			write(1,"Ended in ",9);
+			write(1,buffer,strlen(buffer));
+			write(1," ms\n",4);
+			close(res7);
+
+
 		}
 
 		

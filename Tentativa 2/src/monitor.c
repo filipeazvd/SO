@@ -44,11 +44,15 @@ infPrograma takeList(infPrograma queue, int pid, char* path ){
 		//path neste
 		char pathInteiro[50];
 		char idProcesso[10]; 
+		//printf("%s\n",path);
 		sprintf(idProcesso,"%d",pid);
-		strcpy(pathInteiro,path);
+		strcpy(pathInteiro,"../");
+		strcat(pathInteiro,path);
 		strcat(pathInteiro, "/");
 		strcat(pathInteiro,idProcesso);
 		strcat(pathInteiro,".txt");
+
+		//printf("%s\n",pathInteiro);
 
 		gettimeofday(&gettime3,NULL);
 
@@ -126,7 +130,7 @@ void printlist(infPrograma queue, char inf[]){
 
 int main(int argc, char* argv[]){
 
-
+	//colocar o programa para ./monitor PIDS-folder com argv[1] = etc..
 	if (argc == 2){
 
 		char *path = argv[1];
@@ -194,16 +198,59 @@ int main(int argc, char* argv[]){
 
 			//recebe do cliente pids do programa terminado
 			//coloca numa variavel e manda para a funcao que retira da lista
+				//printf("%s\n",buf);
+				//buf: Pid 12323
 				char* word;
 				word = strtok(buf," ");
 				word = strtok(NULL, " ");
+				char* wordaux = word;
+				//printf("%s\n",word);
+				//printf("%s\n",wordaux);
 				int p;
 				p = atoi(word);
 				//printf("gasdgdgas\n");
+
+
+
 				
+
 
 			//queue nao é um apontador
 				queue = takeList(queue, p, path);
+
+				char d[40];
+				sprintf(d,"../tmp/pidServerCliente%s",wordaux);
+				mkfifo(d,0666);
+				char pathficheiro[100] = "/home/filipe/Desktop/SO/Trab Pratico/SO/Tentativa 2/PIDS-folder/";
+
+				strcat(pathficheiro,wordaux);
+				strcat(pathficheiro,".txt");
+
+				int hist = open(pathficheiro, O_RDONLY, 0666);
+
+				if(hist > 0){
+						int ler;
+						//char buf4[1024];
+						char buf5[1024];
+						buf5[0]= '\0';
+						ler = read(hist,buf5,sizeof(buf5));
+						buf5[ler]='\0';
+						//pid comando tempo ms
+						strtok(buf5," ");
+						strtok(NULL, " ");
+						char *tempo = strtok(NULL, " ");
+						
+						
+						int res6 = open(d, O_WRONLY, 0666); 
+						//printf("%s\n",tempo);
+						write(res6, tempo,strlen(tempo));
+						
+
+				}
+
+
+				
+
 
 			} else if(strncmp(buf,"stats-time",10)==0){
 				//stats-time argc pids pid1 pid2 etc...	
@@ -490,7 +537,9 @@ int main(int argc, char* argv[]){
 			}
 
 		}
-
+		
+		
+		
 	}
 	return 0;
 
