@@ -12,9 +12,6 @@
 #include <string.h>
 
 
-
-
-
 typedef struct infPrograma{
 
 	char *comando;
@@ -205,22 +202,17 @@ int main(int argc, char* argv[]){
 				word = strtok(NULL, " ");
 				char* wordaux = word;
 				//printf("%s\n",word);
-				//printf("%s\n",wordaux);
+				printf("%s\n",wordaux);
 				int p;
 				p = atoi(word);
 				//printf("gasdgdgas\n");
 
-
-
-				
-
-
 			//queue nao é um apontador
 				queue = takeList(queue, p, path);
 
-				char d[40];
-				sprintf(d,"../tmp/pidServerCliente%s",wordaux);
-				mkfifo(d,0666);
+				
+				
+				
 				char pathficheiro[100] = "/home/filipe/Desktop/SO/Trab Pratico/SO/Tentativa 2/PIDS-folder/";
 
 				strcat(pathficheiro,wordaux);
@@ -240,27 +232,28 @@ int main(int argc, char* argv[]){
 						strtok(NULL, " ");
 						char *tempo = strtok(NULL, " ");
 						
+						char pipe[50];
+						strcpy(pipe,"../tmp/");
+						strcat(pipe,wordaux);
 						
-						int res6 = open(d, O_WRONLY, 0666); 
+						int res6 = open(pipe, O_WRONLY, 0666); 
 						//printf("%s\n",tempo);
-						write(res6, tempo,strlen(tempo));
-						
+						write(res6, tempo,strlen(tempo));		
 
 				}
 
-
-				
-
-
 			} else if(strncmp(buf,"stats-time",10)==0){
-				//stats-time argc pids pid1 pid2 etc...	
-				//stats 30033 232030
 				
+				//no buffer: stats-time ../tmp/serverClientepid nºpids pid1 pid2 pid3 etc
 				// pipe para enviar informacoes serverCliente do comando status-time
 
-				mkfifo("../tmp/serverCliente",0666);
+				
 				strtok(buf," ");
+				char *nomePipe = strtok(NULL," ");
+
 				char *s = strtok(NULL," ");
+				//printf("%s\n",s);
+				//tenho nº de pids no argc
 				int argc = atoi(s);
 				
 				char path2[argc][100];
@@ -278,10 +271,16 @@ int main(int argc, char* argv[]){
 					//printf("%s\n",pids[i]);
 				}
 
+				printf("%s\n",pids[0]);
+				printf("%s\n",pids[1]);
+				printf("%s\n",pids[2]);
+				
+
+
+
     			// concatenate path and pid
 
-				//char mensagem[512];
-				//mensagem[0]= '\0';
+				
 				int soma=0;
 				for (int i = 0; i < argc; i++){
 					//./monitor ../PIDS-folder
@@ -330,10 +329,7 @@ int main(int argc, char* argv[]){
 						strcat(mensagem,"\0");
 						*/
 
-					}else{
-						
 					}
-
 
 					
 				}
@@ -349,7 +345,10 @@ int main(int argc, char* argv[]){
 					strcat(somaString,"ms");
 					strcat(somaString,"\n");
 
-					int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+
+
+
+					int res5 = open(nomePipe, O_WRONLY, 0666); 
 					printf("%s\n", somaString);
 					write(res5, somaString, strlen(somaString));
 					strcat(somaString,"\0");
@@ -358,7 +357,7 @@ int main(int argc, char* argv[]){
 
 				}else {
 
-					int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+					int res5 = open(nomePipe, O_WRONLY, 0666); 
 					char msg2[50];
 					strcpy(msg2,"Nenhum dos pids terminou ou existe");
 					strcat(msg2,"\n");
@@ -371,16 +370,19 @@ int main(int argc, char* argv[]){
 
 			}else if(strncmp(buf,"stats-command",13)==0){
 
-				//string no buffer: stats-command ls 2 1230 1323
+				//string no buffer: stats-command pidprocesso ls 2 1230 1323
 				strtok(buf," ");
 				//comando
+				char *ppidd = strtok(NULL," ");
 				char* com =strtok(NULL," ");
 				//printf("posBuf: %s\n",s);
 				char* d =strtok(NULL," ");
 				//qnts pids tem
 				int argc = atoi(d);
 
-
+				char pipe[50];
+				strcpy(pipe,"../tmp/");
+				strcat(pipe,ppidd);
 				
 				char pids[argc][100];
 				//meter os pids recebidos em pid[i]
@@ -434,7 +436,7 @@ int main(int argc, char* argv[]){
 
 					}else{
 						
-						int res5 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+						int res5 = open(pipe, O_WRONLY, 0666); 
 						char msg2[50];
 						strcpy(msg2,"Programa ");
 						strcat(msg2,pids[i]);
@@ -455,18 +457,21 @@ int main(int argc, char* argv[]){
 				strcat(mensagem, " vezes");
 				//printf("Resultado: %s\n", mensagem);
 
-				int res10 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+				int res10 = open(pipe, O_WRONLY, 0666); 
 				write(res10, mensagem, strlen(mensagem));
 				strcat(mensagem,"\0");
 
 
 			}else if(strncmp(buf,"stats-uniq",10)==0){
 
-				//recebo stats-uniq pid1 pid2 pid3
+				//recebo stats-uniq pidgeral npids pid1 pid2 pid3
 
-				mkfifo("../tmp/serverCliente",0666);
+
+
+				
 				strtok(buf," ");
 				//s apontar para o nºpids
+				char *pidgeral = strtok(NULL," ");
 				char *s = strtok(NULL," ");
 				int n = atoi(s);
 
@@ -484,7 +489,7 @@ int main(int argc, char* argv[]){
 
 				char mensagemFinal[512];
 				mensagemFinal[0]='\0';
-				for (int i = 0; i < argc; i++){
+				for (int i = 0; i < n; i++){
 					//./monitor ../PIDS-folder
 					char pathficheiro[100] = "/home/filipe/Desktop/SO/Trab Pratico/SO/Tentativa 2/PIDS-folder/";
 					
@@ -492,16 +497,16 @@ int main(int argc, char* argv[]){
 					strcat(pathficheiro,".txt");
 
 					int hist = open(pathficheiro, O_RDONLY, 0666);
-					char msg[50];
-					msg[0]='\0';
+					//char msg[50];
+					//msg[0]='\0';
 
 					if(hist > 0){
-						int ler;
-						char buf4[1024];
+
+						//char buf4[1024];
 						char buf5[1024];
-						buf5[0]= '\0';
-						ler = read(hist,buf4,sizeof(buf4));
-						strcpy(buf5,buf4);
+						//buf5[0]= '\0';
+						int ler = read(hist,buf5,sizeof(buf5));
+						//strcpy(buf5,buf4);
 						buf5[ler]='\0';
 						//pid comando tempo ms
 						//printf("estou aqui\n");
@@ -509,25 +514,33 @@ int main(int argc, char* argv[]){
 						//comando no tempo
 						char *comando = strtok(NULL, " ");
 						//tenho o comando na msg
-						strcat(msg,comando);
+						//strcat(msg,comando);
 						//printf("msg")
-						//printf("msg: %s\n",msg);
-						if(strstr(mensagemFinal,msg)==NULL){
-							strcat(mensagemFinal,msg);
+						printf("Comando: %s\n",comando);
+						
+						if(strstr(mensagemFinal,comando)==NULL){
+							strcat(mensagemFinal,comando);
 							strcat(mensagemFinal,"\n");	
-							//printf("%s\n",mensagemFinal);
+							printf("%s\n",mensagemFinal);
 						}
+						
+
 					}
 				}
 				
+				char pipe[50];
+				strcpy(pipe,"../tmp/");
+				strcat(pipe,pidgeral);
+
+
 				if(strlen(mensagemFinal)==0){
 
 					//printf("Nenhum dos pids estava correto\n");
-					int res11 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+					int res11 = open(pipe, O_WRONLY, 0666); 
 					write(res11, "Nenhum Pid estava correto\n",26);
 				}
 
-				int res10 = open("../tmp/serverCliente", O_WRONLY, 0666); 
+				int res10 = open(pipe, O_WRONLY, 0666); 
 				write(res10, mensagemFinal, strlen(mensagemFinal));
 				strcat(mensagemFinal,"\0");
 
