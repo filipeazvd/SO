@@ -41,7 +41,6 @@ infPrograma takeList(infPrograma queue, int pid, char* path ){
 		//path neste
 		char pathInteiro[50];
 		char idProcesso[10]; 
-		//printf("%s\n",path);
 		sprintf(idProcesso,"%d",pid);
 		strcpy(pathInteiro,"../");
 		strcat(pathInteiro,path);
@@ -49,7 +48,7 @@ infPrograma takeList(infPrograma queue, int pid, char* path ){
 		strcat(pathInteiro,idProcesso);
 		strcat(pathInteiro,".txt");
 
-		//printf("%s\n",pathInteiro);
+
 
 		gettimeofday(&gettime3,NULL);
 
@@ -157,7 +156,7 @@ int main(int argc, char* argv[]){
 
 				strtok(buf," ");
 
-
+			// ls pid seg mil
 			//colocar inf numa struct
 				infPrograma s1 = malloc(sizeof(struct infPrograma));
 				s1->comando = strdup(strtok(NULL," "));
@@ -195,17 +194,15 @@ int main(int argc, char* argv[]){
 
 			//recebe do cliente pids do programa terminado
 			//coloca numa variavel e manda para a funcao que retira da lista
-				//printf("%s\n",buf);
 				//buf: Pid 12323
 				char* word;
 				word = strtok(buf," ");
 				word = strtok(NULL, " ");
 				char* wordaux = word;
-				//printf("%s\n",word);
-				printf("%s\n",wordaux);
 				int p;
 				p = atoi(word);
-				//printf("gasdgdgas\n");
+				
+
 
 			//queue nao é um apontador
 				queue = takeList(queue, p, path);
@@ -237,7 +234,7 @@ int main(int argc, char* argv[]){
 						strcat(pipe,wordaux);
 						
 						int res6 = open(pipe, O_WRONLY, 0666); 
-						//printf("%s\n",tempo);
+						
 						write(res6, tempo,strlen(tempo));		
 
 				}
@@ -252,7 +249,7 @@ int main(int argc, char* argv[]){
 				char *nomePipe = strtok(NULL," ");
 
 				char *s = strtok(NULL," ");
-				//printf("%s\n",s);
+				
 				//tenho nº de pids no argc
 				int argc = atoi(s);
 				
@@ -268,15 +265,8 @@ int main(int argc, char* argv[]){
 					strcat(path2[i],d);
 
 					strcat(pids[i],path2[i]);
-					//printf("%s\n",pids[i]);
+					
 				}
-
-				printf("%s\n",pids[0]);
-				printf("%s\n",pids[1]);
-				printf("%s\n",pids[2]);
-				
-
-
 
     			// concatenate path and pid
 
@@ -289,13 +279,12 @@ int main(int argc, char* argv[]){
 					strcat(pathficheiro,pids[i]);
 					
 					strcat(pathficheiro,".txt");
-					//printf("path: %s\n",pathficheiro);
+					
 					
 					
 					
 					int hist = open(pathficheiro, O_RDONLY, 0666);
 					
-					//printf("hist: %d\n", hist);
 					if(hist > 0){
 						int ler;
 						char buf4[1024];
@@ -305,29 +294,17 @@ int main(int argc, char* argv[]){
 						buf5[0]= '\0';
 						ler = read(hist,buf4,sizeof(buf4));
 						strcpy(buf5,buf4);
-						//printf("buf5 %s\n",buf5);
+						
 						
 						buf5[ler]='\0';
 						//pid comando tempo ms
 						strtok(buf5," ");
 						strtok(NULL, " ");
 						char *tempo = strtok(NULL, " ");
-						//printf("tempo: %s\n",tempo);
-						//char msg[50];
-						//strcpy(msg,pids[i]);
+			
 						int m = atoi(tempo);
 						soma += m;
-						//printf("aqui: %d\n", soma);
-						/*
-						strcat(msg,": ");	
-						strcat(msg,tempo);
-						strcat(msg," ms");
-
-						strcat(mensagem,msg);
-						strcat(mensagem,"\n");
-						//printf("mensagem: %s",mensagem);
-						strcat(mensagem,"\0");
-						*/
+						
 
 					}
 
@@ -341,7 +318,7 @@ int main(int argc, char* argv[]){
 					strcat(somaString,"Total execution time is ");
 					sprintf(soma1, "%d ",soma);
 					strcat(somaString, soma1);
-					//strcat(somaString," ");
+					
 					strcat(somaString,"ms");
 					strcat(somaString,"\n");
 
@@ -349,7 +326,7 @@ int main(int argc, char* argv[]){
 
 
 					int res5 = open(nomePipe, O_WRONLY, 0666); 
-					printf("%s\n", somaString);
+					
 					write(res5, somaString, strlen(somaString));
 					strcat(somaString,"\0");
 
@@ -375,7 +352,7 @@ int main(int argc, char* argv[]){
 				//comando
 				char *ppidd = strtok(NULL," ");
 				char* com =strtok(NULL," ");
-				//printf("posBuf: %s\n",s);
+			
 				char* d =strtok(NULL," ");
 				//qnts pids tem
 				int argc = atoi(d);
@@ -393,7 +370,7 @@ int main(int argc, char* argv[]){
 					
 					char *d = strtok(NULL," ");
 					strcat(pids[i],d);
-					//printf("%s\n",pids[i]);
+					
 				}
 
 				int count = 0;
@@ -426,12 +403,11 @@ int main(int argc, char* argv[]){
 						char *comando = strtok(NULL, " ");
 						//tenho o comando na msg
 						strcat(msg,comando);
-						//printf("msg")
-						//printf("msg: %s\n",msg);
+						
 						if(strcmp(msg,com)==0){
 							count++;
 						}
-						//printf("%d\n",count);
+						
 
 
 					}else{
@@ -449,13 +425,13 @@ int main(int argc, char* argv[]){
 
 
 				}
-				//printf("%d\n",count);
+				
 				char contador[10];
 				sprintf(contador, "%d", count);
 				strcat(mensagem, "O comando foi executado ");
 				strcat(mensagem, contador);
 				strcat(mensagem, " vezes");
-				//printf("Resultado: %s\n", mensagem);
+				
 
 				int res10 = open(pipe, O_WRONLY, 0666); 
 				write(res10, mensagem, strlen(mensagem));
@@ -465,9 +441,6 @@ int main(int argc, char* argv[]){
 			}else if(strncmp(buf,"stats-uniq",10)==0){
 
 				//recebo stats-uniq pidgeral npids pid1 pid2 pid3
-
-
-
 				
 				strtok(buf," ");
 				//s apontar para o nºpids
@@ -484,7 +457,7 @@ int main(int argc, char* argv[]){
 					
 					char *d = strtok(NULL," ");
 					strcat(pids[i],d);
-					//printf("%s\n",pids[i]);
+					
 				}
 
 				char mensagemFinal[512];
@@ -497,8 +470,7 @@ int main(int argc, char* argv[]){
 					strcat(pathficheiro,".txt");
 
 					int hist = open(pathficheiro, O_RDONLY, 0666);
-					//char msg[50];
-					//msg[0]='\0';
+					
 
 					if(hist > 0){
 
@@ -509,19 +481,18 @@ int main(int argc, char* argv[]){
 						//strcpy(buf5,buf4);
 						buf5[ler]='\0';
 						//pid comando tempo ms
-						//printf("estou aqui\n");
+						
 						strtok(buf5," ");
 						//comando no tempo
 						char *comando = strtok(NULL, " ");
 						//tenho o comando na msg
-						//strcat(msg,comando);
-						//printf("msg")
-						printf("Comando: %s\n",comando);
+						
+						
 						
 						if(strstr(mensagemFinal,comando)==NULL){
 							strcat(mensagemFinal,comando);
 							strcat(mensagemFinal,"\n");	
-							printf("%s\n",mensagemFinal);
+							
 						}
 						
 
@@ -535,7 +506,7 @@ int main(int argc, char* argv[]){
 
 				if(strlen(mensagemFinal)==0){
 
-					//printf("Nenhum dos pids estava correto\n");
+					
 					int res11 = open(pipe, O_WRONLY, 0666); 
 					write(res11, "Nenhum Pid estava correto\n",26);
 				}
@@ -550,6 +521,7 @@ int main(int argc, char* argv[]){
 			}
 
 		}
+		//unlink("../tmp/clienteServer");
 		
 		
 		

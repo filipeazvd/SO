@@ -38,10 +38,10 @@ int main(int argc, char* argv[]){
 		//colocar a string comando em stringArg "ls -l ..."
 		int i = 0;
 		while(stringArg[i++]){
-			//printf("%d\n",i);
+			
 			//NULL pega na string anterior
 			stringArg[i] = strtok(NULL," ");
-			//printf("%s\n",stringArg[i]);
+			
 		}
 
 		// se o comando for um execute
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]){
 			sprintf(pipe,"../tmp/%s",pidd);
 			mkfifo(pipe,0666);
 
-			//printf("%s\n", a);
+			
 
 			write(res1,a,strlen(a));
 
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]){
 			int res7 = open(pipe, O_RDONLY, 0666);
 			int res8 = read(res7,buffer,50);
 			buffer[res8]='\0';
-			//printf("%s\n",buffer);
+			
 
 
 			write(1,"\n",1);
@@ -124,6 +124,7 @@ int main(int argc, char* argv[]){
 			write(1,buffer,strlen(buffer));
 			write(1," ms\n",4);
 			close(res7);
+			unlink(pipe);
 
 
 		}
@@ -158,6 +159,7 @@ int main(int argc, char* argv[]){
 		buf2[n]='\0';
 			//escrever no stdout o status
 		write(1, buf2, strlen(buf2));
+		unlink(c);
 		
 
 	}else if(strcmp(argv[1],"stats-time")==0){
@@ -198,7 +200,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("%s\n",stringArg);
+		
 
 
 		//stringArg: stats-time ../tmp/serverClientepid nºpids pid1 pid2 pid3 etc
@@ -220,9 +222,9 @@ int main(int argc, char* argv[]){
 		int res6 = open(c,O_RDONLY, 0666);
 		int n= read(res6, msg2, sizeof(msg2));
 		msg2[n]='\0';
-		//printf("%s\n",msg2);
-		//printf("%s\n", msg2);
+		
 		write(1,msg2,strlen(msg2));
+		unlink(c);
 		
 		
 	}else if(strcmp(argv[1],"stats-command")==0){
@@ -252,8 +254,8 @@ int main(int argc, char* argv[]){
 			strcat(stringArg,argcs2);
 			strcat(stringArg," ");
 
-			//printa: stats-command pid nomecomando nºpids
-			//printf("%s\n", stringArg);
+			//printa: stats-command pid nomecomando nºpids 12 12 12 12 12
+			
 
 			for (int i = 3; i < argc; i++){
 
@@ -302,6 +304,7 @@ int main(int argc, char* argv[]){
 			//printf("msg:%s \n",msg50);
 			write(1,msg50,strlen(msg50));
 			write(1,"\n",1);
+			unlink(pipe);
 
 			
 		} else {
@@ -345,7 +348,7 @@ int main(int argc, char* argv[]){
 				strcat(stringArg," ");
 			}
 		}
-		printf("%s\n",stringArg);
+		
 
 		char pipe[50];
 		strcpy(pipe,"../tmp/");
@@ -370,10 +373,9 @@ int main(int argc, char* argv[]){
 		int res6 = open(pipe,O_RDONLY, 0666);
 		int n= read(res6, msg2, sizeof(msg2));
 		msg2[n]='\0';
-		//printf("%s\n",msg2);
-		//printf("%s\n", msg2);
-		write(1,msg2,strlen(msg2));
 		
+		write(1,msg2,strlen(msg2));
+		unlink(pipe);
 	}else {
 
 		write(1,"Erro nos argumentos\n",20);
